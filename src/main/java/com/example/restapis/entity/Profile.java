@@ -17,7 +17,6 @@ import jakarta.persistence.Table;
 public class Profile {
 
 	@Id
-	
 	private Long id;
 	private String phone;
 	private LocalDate dateOfBirth;
@@ -26,6 +25,30 @@ public class Profile {
 	@JoinColumn(name = "id")
 	@MapsId
 	private User user;
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 	
 	
 

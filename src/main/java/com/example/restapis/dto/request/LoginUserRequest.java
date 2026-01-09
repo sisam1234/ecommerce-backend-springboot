@@ -1,9 +1,16 @@
 package com.example.restapis.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class LoginUserRequest {
 
+	@NotBlank(message = "Your email is required")
 	private String email;
+	
+	@NotBlank(message = "Password is required")
 	private String password;
+	
+	
 	public String getEmail() {
 		return email;
 	}
