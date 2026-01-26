@@ -6,7 +6,7 @@ public class ProductDTO {
 	private String name;
 	private String description;
 	private float price;
-	private int quantity;
+	
 	public Long getId() {
 		return id;
 	}
@@ -31,12 +31,7 @@ public class ProductDTO {
 	public void setPrice(float price) {
 		this.price = price;
 	}
-	public int getQuantity() {
-		return quantity;
-	}
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
+	
 	
 	
 }

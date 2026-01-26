@@ -3,12 +3,15 @@ package com.example.restapis.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.restapis.dto.OrderDTO;
+import com.example.restapis.dto.OrderItemDTO;
+import com.example.restapis.dto.ProductDTO;
 import com.example.restapis.entity.Address;
 import com.example.restapis.entity.Cart;
 import com.example.restapis.entity.CartItem;
@@ -70,9 +73,17 @@ public class OrderService {
 		}
 		order.setOrderItems(orderItems);
 		orderItems = orderItemRepository.saveAll(orderItems);
-		
 		Order savedorder = orderRepository.save(order);
 		OrderDTO orderdto = modelMapper.map(savedorder, OrderDTO.class);
+		orderdto.setTotalPrice(order.getTotalAmount());
+		List<OrderItemDTO> oderitemdto = order.getOrderItems().stream().map(item->{
+			
+			OrderItemDTO orderitemdto = modelMapper.map(item,OrderItemDTO.class);
+			ProductDTO product = modelMapper.map(item.getProducts(),ProductDTO.class);
+			orderitemdto.setProduct(product);
+			return orderitemdto;
+		}).collect(Collectors.toList());
+		orderdto.setOrderItems(oderitemdto);
 		return orderdto;
 		
 	}

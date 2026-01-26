@@ -26,7 +26,7 @@ public class Order {
 	private double totalAmount;
 	private String orderStatus;
 	
-	@OneToMany(mappedBy = "order")
+	@OneToMany(mappedBy = "order", orphanRemoval = true)
 	private List<OrderItem> orderItems = new ArrayList<>();
 	
 	@ManyToOne()

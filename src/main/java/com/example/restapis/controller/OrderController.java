@@ -25,8 +25,8 @@ public class OrderController {
 	 @Autowired
 	 OrderService orderService;
 
-	@PostMapping("/placeorder/{paymentMethod}")
-	public ResponseEntity<OrderDTO> placeorder(@PathVariable String paymentMethod, @RequestBody OrderRequest request, HttpSession session){
+	@PostMapping("/placeorder/{addressId}")
+	public ResponseEntity<OrderDTO> placeorder( @PathVariable Long addressId,@RequestBody OrderRequest request, HttpSession session){
 		Long userId = (Long)  session.getAttribute("userId");
 		if (userId == null) {
 		    throw new RuntimeException("User not logged in or session expired");
@@ -36,8 +36,8 @@ public class OrderController {
 		String email = user.getEmail();
 		OrderDTO order = orderService.placeOrder(
 				email,
-				5L,
-				paymentMethod,
+				addressId,
+				request.getPaymentMethod(),
 				request.getPgName(),
 				request.getPgPaymentId(),
 				request.getPgstatus(),

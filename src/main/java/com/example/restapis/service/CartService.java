@@ -78,7 +78,7 @@ public class CartService {
 		CartDTO cartdto = modelMapper.map(cart, CartDTO.class);
 		List<ProductDTO> product  = cart.getCartItems().stream().map(item->{
 			ProductDTO productdto = modelMapper.map(item.getProduct(), ProductDTO.class);
-			productdto.setQuantity(item.getQuantity());
+			
 			return productdto;
 		}).collect(Collectors.toList());
 		cartdto.setProducts(product);
@@ -92,10 +92,9 @@ public class CartService {
 	
 		}
 		CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
-		List<CartItem> cartItems = cart.getCartItems();
+		List<CartItem> cartItems= cart.getCartItems();
 		List<ProductDTO> products = cartItems.stream().map(item->{
 			ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
-			dto.setQuantity(item.getQuantity());
 			return dto;
 		}).collect(Collectors.toList());
 		cartDTO.setProducts(products);
@@ -116,6 +115,21 @@ public class CartService {
 
 		return modelMapper.map(cart, CartDTO.class);
 		
+	}
+	public CartDTO removeCartItems(Long userId, Long productId) {
+		Cart cart  = cartRepository.findByUserId(userId);
+		CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId).orElseThrow();
+		cartItemRepository.delete(cartItem);
+		cart.setTotalPrice(cart.getTotalPrice()-cartItem.getQuantity()*cartItem.getProduct().getPrice());
+		cartRepository.save(cart);
+		CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+		List<CartItem> cartItems= cart.getCartItems();
+		List<ProductDTO> products = cartItems.stream().map(item->{
+			ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
+			return dto;
+		}).collect(Collectors.toList());
+		cartDTO.setProducts(products);
+		return cartDTO;
 		
 		
 	}
