@@ -1,10 +1,10 @@
-package com.example.restapis.dto.request;
+package com.example.restapis.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class RegisterUserRequest {
+public class RegisterUserDTO {
 
 	@NotBlank(message = "Your name is required")
 	private String name;

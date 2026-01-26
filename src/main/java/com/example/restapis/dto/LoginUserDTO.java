@@ -1,8 +1,8 @@
-package com.example.restapis.dto.request;
+package com.example.restapis.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class LoginUserRequest {
+public class LoginUserDTO {
 
 	@NotBlank(message = "Your email is required")
 	private String email;

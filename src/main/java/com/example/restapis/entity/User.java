@@ -2,8 +2,7 @@ package com.example.restapis.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-
-
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -58,5 +57,37 @@ import jakarta.persistence.Table;
 		@OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
 	    private Profile profile;
 		
+	
+		
+		
+ 		
+		 @OneToOne(mappedBy = "user")
+		 private Cart cart;
+
+
+		 public long getId() {
+			 return id;
+		 }
+		 public void setId(long id) {
+			 this.id = id;
+		 }
+		 public List<Address> getAddresses() {
+			 return addresses;
+		 }
+		 public void setAddresses(List<Address> addresses) {
+			 this.addresses = addresses;
+		 }
+		 public Profile getProfile() {
+			 return profile;
+		 }
+		 public void setProfile(Profile profile) {
+			 this.profile = profile;
+		 }
 		 
+		 public Cart getCart() {
+			 return cart;
+		 }
+		 public void setCart(Cart cart) {
+			 this.cart = cart;
+		 }
 }

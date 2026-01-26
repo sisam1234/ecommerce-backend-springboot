@@ -5,9 +5,9 @@ package com.example.restapis.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.restapis.dto.request.LoginUserRequest;
-import com.example.restapis.dto.request.RegisterUserRequest;
-import com.example.restapis.dto.request.UserProfileRequest;
+import com.example.restapis.dto.LoginUserDTO;
+import com.example.restapis.dto.RegisterUserDTO;
+import com.example.restapis.dto.UserProfileDTO;
 import com.example.restapis.entity.Profile;
 import com.example.restapis.entity.User;
 import com.example.restapis.repository.ProfileRepository;
@@ -22,7 +22,7 @@ public class UserService {
 	@Autowired
 	private ProfileRepository profileRepo;
 	
-	public User register(RegisterUserRequest req) {
+	public User register(RegisterUserDTO req) {
 		User user = new User();
 		user.setName(req.getName());
 		user.setEmail(req.getEmail());
@@ -31,7 +31,7 @@ public class UserService {
         
 	}
 	
-	public User login(LoginUserRequest request) {
+	public User login(LoginUserDTO request) {
 		
 		User user = userRepo.findByEmail(request.getEmail()).orElseThrow(()->new RuntimeException("Inavlid credentials.."));
 		if(!user.getPassword().equals(request.getPassword())) {
@@ -41,7 +41,7 @@ public class UserService {
 		
 	}
 	
-	public Profile createProfile(UserProfileRequest request) {
+	public Profile createProfile(UserProfileDTO request) {
 		User u = userRepo.findById(request.getId()).orElseThrow();
 		Profile p = new Profile();
 		p.setDateOfBirth(request.getDateOfBirth());

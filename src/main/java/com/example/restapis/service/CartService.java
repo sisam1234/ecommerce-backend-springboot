@@ -1,0 +1,122 @@
+package com.example.restapis.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.example.restapis.dto.CartDTO;
+import com.example.restapis.dto.CartItemDTO;
+import com.example.restapis.dto.ProductDTO;
+import com.example.restapis.entity.Cart;
+import com.example.restapis.entity.CartItem;
+import com.example.restapis.entity.Product;
+import com.example.restapis.entity.User;
+import com.example.restapis.repository.CartItemRepository;
+import com.example.restapis.repository.CartRepository;
+import com.example.restapis.repository.ProductRepository;
+import com.example.restapis.repository.UserRepository;
+
+@Service
+public class CartService {
+	@Autowired
+	private CartRepository cartRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private ProductRepository productRepository;
+	
+	@Autowired
+	ModelMapper modelMapper;
+	
+	@Autowired
+	private CartItemRepository cartItemRepository;
+	
+	private Cart createCart(Long userId) {
+		Cart userCart = cartRepository.findByUserId(userId);
+		User user = userRepository.findById(userId).orElseThrow();
+		if(userCart!=null) {
+			return userCart;
+		}
+		Cart cart = new Cart();
+		cart.setUser(user);
+		cart.setTotalPrice(0.0);
+		Cart newCart  = cartRepository.save(cart);
+		return newCart;
+		
+	}
+	public CartDTO addtocart(Long productId, int quantity, Long userId) {
+		Cart cart = createCart(userId);
+		Optional<CartItem> existingItems = cartItemRepository.findByCartIdAndProductId(cart.getId(),productId);
+		if(existingItems.isPresent()) {
+			CartItem item = existingItems.get();
+			item.setQuantity(quantity+item.getQuantity());
+			cartItemRepository.save(item);
+		}
+		else {
+			CartItem cartItem = new CartItem();
+			Product product = productRepository.findById(productId).orElseThrow();
+			cartItem.setProduct(product);
+			cartItem.setCart(cart);
+			cartItem.setQuantity(quantity);
+			cart.getCartItems().add(cartItem);
+			cartItemRepository.save(cartItem);
+		}
+		double totalPrice   = 0.0;
+		for(CartItem items: cart.getCartItems()) {
+			totalPrice+=items.getProduct().getPrice()*items.getQuantity();
+		}
+		cart.setTotalPrice(totalPrice);
+		cartRepository.save(cart);
+		CartDTO cartdto = modelMapper.map(cart, CartDTO.class);
+		List<ProductDTO> product  = cart.getCartItems().stream().map(item->{
+			ProductDTO productdto = modelMapper.map(item.getProduct(), ProductDTO.class);
+			productdto.setQuantity(item.getQuantity());
+			return productdto;
+		}).collect(Collectors.toList());
+		cartdto.setProducts(product);
+		
+		return cartdto;
+	}
+	public CartDTO getUserCart(Long userId, Long id){
+	Cart cart = cartRepository.findByUserIdAndId(userId, id).orElseThrow();
+		if(cart ==  null) {
+			throw new RuntimeException("nothing in cart");
+	
+		}
+		CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+		List<CartItem> cartItems = cart.getCartItems();
+		List<ProductDTO> products = cartItems.stream().map(item->{
+			ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
+			dto.setQuantity(item.getQuantity());
+			return dto;
+		}).collect(Collectors.toList());
+		cartDTO.setProducts(products);
+		return cartDTO;
+	}
+	
+	public CartDTO updateProductQuantity(Long productId, int quantity, Long userId) {
+		Cart cart = cartRepository.findById(userId).orElseThrow();
+		Long cartId = cart.getId();
+		CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, productId).orElseThrow();
+		cartItem.setQuantity(quantity);
+		 double totalPrice = 0.0;
+		    for (CartItem item : cart.getCartItems()) {
+		        totalPrice += item.getProduct().getPrice() * item.getQuantity();
+		    }
+
+		    cart.setTotalPrice(totalPrice);
+
+		return modelMapper.map(cart, CartDTO.class);
+		
+		
+		
+	}
+}

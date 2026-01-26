@@ -16,15 +16,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.restapis.dto.request.LoginUserRequest;
-import com.example.restapis.dto.request.RegisterUserRequest;
-import com.example.restapis.dto.request.UserProfileRequest;
+import com.example.restapis.dto.LoginUserDTO;
+import com.example.restapis.dto.RegisterUserDTO;
+import com.example.restapis.dto.UserProfileDTO;
 import com.example.restapis.entity.Profile;
+import com.example.restapis.entity.User;
 import com.example.restapis.repository.ProfileRepository;
 import com.example.restapis.repository.UserRepository;
 import com.example.restapis.service.UserService;
 
-
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @RestController
@@ -38,11 +39,10 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepo;
     
-	@Autowired
-	private ProfileRepository pr;
+	
 	
 	@PostMapping("/user/register")
-	public ResponseEntity<?> register(@Valid @RequestBody RegisterUserRequest request ,  BindingResult result) {
+	public ResponseEntity<?> register(@Valid @RequestBody RegisterUserDTO request ,  BindingResult result) {
 	    
 		 if(result.hasErrors()) {
 		    	List<String> error = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList());
@@ -58,9 +58,11 @@ public class UserController {
 	}
 	
 	@PostMapping("/user/login")
-	public ResponseEntity<String> login(@RequestBody LoginUserRequest request){
+	public ResponseEntity<String> login(@RequestBody LoginUserDTO request, HttpSession session){
 		try {
-			userService.login(request);
+			User user = userService.login(request);
+			session.setAttribute("userId",user.getId());
+			
 			return ResponseEntity.ok("login successful");
 		}catch (RuntimeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
@@ -68,17 +70,11 @@ public class UserController {
 	}
 	
 	@PostMapping("user/{id}/profile")
-	public ResponseEntity<?> profile(@PathVariable Long id, @RequestBody UserProfileRequest request){
+	public ResponseEntity<?> profile(@PathVariable Long id, @RequestBody UserProfileDTO request){
 		request.setId(id);
 		userService.createProfile(request);
 		return ResponseEntity.ok("profile created");
 		
 	}
-	@GetMapping("/profile/{id}")
-	public Profile profileget(@PathVariable Long id) {
-		Profile f = pr.findById(id).orElseThrow();
-		System.out.println(f.getUser().getName());
-		return f;
-		
-	}
+	
 }
