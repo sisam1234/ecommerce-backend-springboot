@@ -41,7 +41,7 @@ public class CartService {
 	
 	private Cart createCart(Long userId) {
 		Cart userCart = cartRepository.findByUserId(userId);
-		User user = userRepository.findById(userId).orElseThrow();
+		User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("user not found"));
 		if(userCart!=null) {
 			return userCart;
 		}

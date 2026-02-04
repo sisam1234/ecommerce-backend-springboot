@@ -7,32 +7,43 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.GetMapping;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.restapis.dto.LoginResponse;
 import com.example.restapis.dto.LoginUserDTO;
 import com.example.restapis.dto.RegisterUserDTO;
 import com.example.restapis.dto.UserProfileDTO;
-import com.example.restapis.entity.Profile;
+
 import com.example.restapis.entity.User;
-import com.example.restapis.repository.ProfileRepository;
+
 import com.example.restapis.repository.UserRepository;
+import com.example.restapis.service.JwtService;
+import com.example.restapis.service.UserDetailsImpl;
 import com.example.restapis.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
+@RequestMapping("/auth")
 @RestController
 public class UserController {
 
    
-	
+	 
+	@Autowired
+private JwtService jwtService;
+
+	 
+
 	@Autowired
 	private UserService userService;
 	
@@ -58,15 +69,22 @@ public class UserController {
 	}
 	
 	@PostMapping("/user/login")
-	public ResponseEntity<String> login(@RequestBody LoginUserDTO request, HttpSession session){
-		try {
-			User user = userService.login(request);
-			session.setAttribute("userId",user.getId());
+	public ResponseEntity<LoginResponse> login(@RequestBody LoginUserDTO req){
+			User user = userService.login(req);
+    String token = jwtService.generateToken(new UserDetailsImpl(user));
+    long expiresIn = jwtService.getExpirationTime(); // your JwtService should expose this
+
+    LoginResponse response = new LoginResponse();
+    response.setToken(token);
+    response.setId(user.getId());
+    response.setName(user.getName());
+    response.setEmail(user.getEmail());
+    response.setExpiresIn(expiresIn);
+
+    return ResponseEntity.ok(response);
+
 			
-			return ResponseEntity.ok("login successful");
-		}catch (RuntimeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+		
 	}
 	
 	@PostMapping("user/{id}/profile")
