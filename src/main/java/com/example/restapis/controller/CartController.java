@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.restapis.dto.ApiResponse;
 import com.example.restapis.dto.CartDTO;
 
 import com.example.restapis.entity.Cart;
@@ -35,19 +36,18 @@ public class CartController {
 	private CartRepository cartRepository;
 	
 	@PostMapping("product/{productId}/{quantity}")
-		public ResponseEntity<?> addtocart(@PathVariable Long productId, @PathVariable int quantity, @AuthenticationPrincipal UserDetailsImpl user){
+		public ResponseEntity<ApiResponse<CartDTO>> addtocart(@PathVariable Long productId, @PathVariable int quantity, @AuthenticationPrincipal UserDetailsImpl user){
 		try{
 			
 			Long userId = user.getId();
 		CartDTO cart = cartService.addtocart(productId, quantity, userId);
-			
-			return new ResponseEntity<>(cart, HttpStatus.OK);
-		}catch (RuntimeException e) {
-        
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                             .body("Error: " + e.getMessage());
-    }
-
+			ApiResponse<CartDTO> apiResponse = new ApiResponse<>("Added to cart", false, cart);
+			return ResponseEntity.ok(apiResponse);
+		}catch (Exception e){
+			ApiResponse<CartDTO> apiResponse = new ApiResponse<>(e.getMessage(), false, null);
+			return ResponseEntity.badRequest().body(apiResponse);
+		}
+	
 			
 		}
 	@GetMapping("/cart/user")
