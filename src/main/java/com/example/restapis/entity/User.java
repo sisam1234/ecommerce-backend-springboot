@@ -2,10 +2,13 @@ package com.example.restapis.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,6 +27,9 @@ import jakarta.persistence.Table;
 		private String name;
 		private String email;
 		private String password;
+		@Enumerated(value = EnumType.STRING)
+		@Column(nullable = false)
+		private Role role;
 		
 		
 		public String getName() {
@@ -44,8 +50,15 @@ import jakarta.persistence.Table;
 		public void setPassword(String password) {
 			this.password = password;
 		}
+		
 		@OneToMany(mappedBy = "user",cascade = {CascadeType.PERSIST, CascadeType.REMOVE},orphanRemoval = true )
 		private List<Address> addresses = new ArrayList<>();
+		public Role getRole() {
+			return role;
+		}
+		public void setRole(Role role) {
+			this.role = role;
+		}
 		public void addAddress(Address address) {
 			addresses.add(address);
 			address.setUser(this);

@@ -28,8 +28,10 @@ private User user; // wrap your User entity
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // For now, simple ROLE_USER
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        if (user.getRole() == null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     @Override

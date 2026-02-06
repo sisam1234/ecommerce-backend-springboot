@@ -12,6 +12,7 @@ import com.example.restapis.dto.LoginUserDTO;
 import com.example.restapis.dto.RegisterUserDTO;
 import com.example.restapis.dto.UserProfileDTO;
 import com.example.restapis.entity.Profile;
+import com.example.restapis.entity.Role;
 import com.example.restapis.entity.User;
 import com.example.restapis.repository.ProfileRepository;
 import com.example.restapis.repository.UserRepository;
@@ -27,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 	 private final AuthenticationManager authenticationManager;
 
+    
     public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
@@ -39,11 +41,13 @@ public class UserService {
 		user.setName(req.getName());
 		user.setEmail(req.getEmail());
 		user.setPassword(passwordEncoder.encode(req.getPassword()));
+		user.setRole(Role.USER);
 		return userRepo.save(user);
         
 	}
 	
 	public User login(LoginUserDTO request) {
+		System.out.println(request.getEmail());
 		
 		authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(
@@ -51,9 +55,12 @@ public class UserService {
 				request.getPassword()
 			)
 		);
-		return userRepo.findByEmail(request.getEmail()).orElseThrow();
+		 User user = userRepo.findByEmail(request.getEmail()).orElseThrow();
+    System.out.println("Login successful for user: " + user.getEmail());
+    return user;
 		
 	}
+	
 	
 	public Profile createProfile(UserProfileDTO request) {
 		User u = userRepo.findById(request.getId()).orElseThrow();

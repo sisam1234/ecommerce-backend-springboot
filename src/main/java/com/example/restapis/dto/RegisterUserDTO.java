@@ -13,7 +13,7 @@ public class RegisterUserDTO {
 	private String email;
 	
 	@NotBlank(message = "Password is required")
-	@Size(min = 6, message = "Password should contain at least 6 characters")
+	@Size(min = 6, message = "Password should contain at least 6 charac,ters")
 	private String password;
 	public String getName() {
 		return name;
