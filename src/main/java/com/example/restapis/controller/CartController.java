@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restapis.dto.ApiResponse;
 import com.example.restapis.dto.CartDTO;
-
 import com.example.restapis.entity.Cart;
 
 import com.example.restapis.repository.CartRepository;
@@ -33,7 +32,7 @@ public class CartController {
 	@Autowired
 	private CartService cartService;
 	
-	@Autowired
+
 
 	
 	@PostMapping("/cart")

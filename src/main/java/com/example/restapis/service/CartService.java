@@ -91,8 +91,8 @@ public class CartService {
 	}
 	public CartDTO getUserCart(){
 		Long userId = authUtil.loggedInUserId();
-		Cart cartId = cartRepository.findByUserId(userId);
-	Cart cart = cartRepository.findByUserIdAndId(userId, cartId.getId()).orElseThrow();
+		Cart cart= cartRepository.findByUserId(userId);
+	
 		if(cart ==  null) {
 			throw new RuntimeException("nothing in cart");
 	

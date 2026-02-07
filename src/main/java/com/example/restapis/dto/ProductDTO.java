@@ -6,6 +6,13 @@ public class ProductDTO {
 	private String name;
 	private String description;
 	private float price;
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
+	}
+	private String image;
 	
 	public Long getId() {
 		return id;
