@@ -6,13 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restapis.dto.ApiResponse;
@@ -24,7 +25,7 @@ import com.example.restapis.repository.CartRepository;
 import com.example.restapis.service.CartService;
 import com.example.restapis.service.UserDetailsImpl;
 
-import jakarta.servlet.http.HttpSession;
+
 
 @RestController
 public class CartController {
@@ -33,15 +34,15 @@ public class CartController {
 	private CartService cartService;
 	
 	@Autowired
-	private CartRepository cartRepository;
+
 	
-	@PostMapping("product/{productId}/{quantity}")
-		public ResponseEntity<ApiResponse<CartDTO>> addtocart(@PathVariable Long productId, @PathVariable int quantity, @AuthenticationPrincipal UserDetailsImpl user){
+	@PostMapping("/cart")
+		public ResponseEntity<ApiResponse<CartDTO>> addtocart(@RequestParam Long productId, @RequestParam int quantity){
 		try{
 			
-			Long userId = user.getId();
-		CartDTO cart = cartService.addtocart(productId, quantity, userId);
-			ApiResponse<CartDTO> apiResponse = new ApiResponse<>("Added to cart", false, cart);
+			
+		CartDTO cart = cartService.addtocart(productId, quantity);
+			ApiResponse<CartDTO> apiResponse = new ApiResponse<>("Added to cart", true, cart);
 			return ResponseEntity.ok(apiResponse);
 		}catch (Exception e){
 			ApiResponse<CartDTO> apiResponse = new ApiResponse<>(e.getMessage(), false, null);
@@ -50,23 +51,22 @@ public class CartController {
 	
 			
 		}
-	@GetMapping("/cart/user")
-	public ResponseEntity<CartDTO> getusercart( @AuthenticationPrincipal UserDetailsImpl user){
+	@GetMapping("/cart")
+	public ResponseEntity<CartDTO> getusercart(){
 		
-		Cart cart = cartRepository.findByUserId(user.getId());
-		Long id = cart.getId();
-		CartDTO carts = cartService.getUserCart(user.getId(), id);
+		
+		CartDTO carts = cartService.getUserCart();
 		return new ResponseEntity<>(carts,HttpStatus.OK);
 		 
 	}
 	
-	@PostMapping("update/{productId}/{quantity}")
-	public ResponseEntity<CartDTO> updateQuantity(@PathVariable Long productId, int quantity, @AuthenticationPrincipal UserDetailsImpl user){
+	@PutMapping("cart/{itemId}")
+	public ResponseEntity<CartDTO> updateQuantity(@PathVariable Long itemId,@RequestParam int quantity){
 		
-		CartDTO  cart= cartService.updateProductQuantity(productId, quantity, user.getId());
+		CartDTO  cart= cartService.updateProductQuantity(itemId,quantity);
 				return new ResponseEntity<>(cart,HttpStatus.OK);
 	}
-	 @DeleteMapping("/cart/delete/{productId}")
+	 @DeleteMapping("/cart/{productId}")
 	 public ResponseEntity<CartDTO> remeoveCartItem(@PathVariable Long productId,  @AuthenticationPrincipal UserDetailsImpl user){
 		;
 		 CartDTO  cart= cartService.removeCartItems(user.getId(), productId);

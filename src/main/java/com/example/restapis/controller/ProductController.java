@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restapis.dto.ProductDTO;
 import com.example.restapis.dto.ProductResponse;
-import com.example.restapis.entity.Product;
+
 import com.example.restapis.service.ProductService;
 
 
@@ -25,7 +25,7 @@ public class ProductController {
 	@Autowired
 	private ProductService productSrevice;
 
-	@PostMapping("/admin/{categoryId}/addproduct")
+	@PostMapping("/admin/category/{categoryId}/product")
 	public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO request, @PathVariable Long categoryId){
 	
 		ProductDTO savedProduct = productSrevice.addProduct(request, categoryId);

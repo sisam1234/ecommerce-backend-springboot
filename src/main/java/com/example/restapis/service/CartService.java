@@ -1,17 +1,17 @@
 package com.example.restapis.service;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+
 
 import com.example.restapis.dto.CartDTO;
-import com.example.restapis.dto.CartItemDTO;
 import com.example.restapis.dto.ProductDTO;
 import com.example.restapis.entity.Cart;
 import com.example.restapis.entity.CartItem;
@@ -21,6 +21,7 @@ import com.example.restapis.repository.CartItemRepository;
 import com.example.restapis.repository.CartRepository;
 import com.example.restapis.repository.ProductRepository;
 import com.example.restapis.repository.UserRepository;
+import com.example.restapis.utils.AuthUtil;
 
 @Service
 public class CartService {
@@ -38,6 +39,8 @@ public class CartService {
 	
 	@Autowired
 	private CartItemRepository cartItemRepository;
+	@Autowired
+	AuthUtil authUtil;
 	
 	private Cart createCart(Long userId) {
 		Cart userCart = cartRepository.findByUserId(userId);
@@ -52,7 +55,8 @@ public class CartService {
 		return newCart;
 		
 	}
-	public CartDTO addtocart(Long productId, int quantity, Long userId) {
+	public CartDTO addtocart(Long productId, int quantity) {
+		Long userId = authUtil.loggedInUserId();
 		Cart cart = createCart(userId);
 		Optional<CartItem> existingItems = cartItemRepository.findByCartIdAndProductId(cart.getId(),productId);
 		if(existingItems.isPresent()) {
@@ -85,8 +89,10 @@ public class CartService {
 		
 		return cartdto;
 	}
-	public CartDTO getUserCart(Long userId, Long id){
-	Cart cart = cartRepository.findByUserIdAndId(userId, id).orElseThrow();
+	public CartDTO getUserCart(){
+		Long userId = authUtil.loggedInUserId();
+		Cart cartId = cartRepository.findByUserId(userId);
+	Cart cart = cartRepository.findByUserIdAndId(userId, cartId.getId()).orElseThrow();
 		if(cart ==  null) {
 			throw new RuntimeException("nothing in cart");
 	
@@ -101,19 +107,32 @@ public class CartService {
 		return cartDTO;
 	}
 	
-	public CartDTO updateProductQuantity(Long productId, int quantity, Long userId) {
-		Cart cart = cartRepository.findById(userId).orElseThrow();
-		Long cartId = cart.getId();
-		CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, productId).orElseThrow();
+	public CartDTO updateProductQuantity(Long itemId, int quantity) {
+		Long userId = authUtil.loggedInUserId();
+		CartItem cartItem = cartItemRepository.findById(itemId).orElseThrow();
+		if(userId !=cartItem.getCart().getUser().getId()){
+			throw new AccessDeniedException("not authorized");
+		}
 		cartItem.setQuantity(quantity);
+		cartItemRepository.save(cartItem);
+		Cart cart = cartItem.getCart();
 		 double totalPrice = 0.0;
 		    for (CartItem item : cart.getCartItems()) {
 		        totalPrice += item.getProduct().getPrice() * item.getQuantity();
 		    }
 
 		    cart.setTotalPrice(totalPrice);
+			cartRepository.save(cart);
+			
 
-		return modelMapper.map(cart, CartDTO.class);
+		CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+		List<CartItem> cartItems= cart.getCartItems();
+		List<ProductDTO> products = cartItems.stream().map(item->{
+			ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
+			return dto;
+		}).collect(Collectors.toList());
+		cartDTO.setProducts(products);
+		return cartDTO;
 		
 	}
 	public CartDTO removeCartItems(Long userId, Long productId) {

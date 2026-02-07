@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restapis.dto.CategoryDTO;
 import com.example.restapis.dto.CategoryResponse;
-import com.example.restapis.entity.Category;
+
 import com.example.restapis.service.CategoryService;
 
 @RestController
@@ -23,7 +23,7 @@ public class CategoryController {
 
 	@Autowired
 	private CategoryService categoryService;
-	@PostMapping("/category")
+	@PostMapping("/admin/category")
 	public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO request){
 		CategoryDTO saved = categoryService.createCategory(request);
 		return new ResponseEntity<>(saved,HttpStatus.OK);
@@ -34,13 +34,13 @@ public class CategoryController {
 		 return cat;
 		 
 	 }
-	 @DeleteMapping("/delete/category/{categoryId}")
+	 @DeleteMapping("/admin/category/{categoryId}")
 	 public ResponseEntity<?> delete(@PathVariable Long categoryId){
 		 categoryService.deleteCategory(categoryId);
 		 return ResponseEntity.ok("deleted");
 	 }
 	 
-	 @PutMapping("/update/category/{categoryId}")
+	 @PutMapping("/admin/category/{categoryId}")
 	 public ResponseEntity<CategoryDTO> update(@RequestBody CategoryDTO request, @PathVariable Long categoryId){
 		 CategoryDTO cat = categoryService.updateCategory(request, categoryId);
 		 return new ResponseEntity<>(cat,HttpStatus.OK);
