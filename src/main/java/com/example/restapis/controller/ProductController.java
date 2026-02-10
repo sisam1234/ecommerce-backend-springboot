@@ -37,8 +37,7 @@ public class ProductController {
 	FileService fileService;
 
 
-	@Value("${project.image}")
-	String path;
+	
 
 	@PostMapping(value = "/admin/category/{categoryId}/product",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<ProductDTO> addProduct(@RequestPart("product") ProductDTO request, @PathVariable Long categoryId, @RequestPart("image") MultipartFile image) throws IOException{

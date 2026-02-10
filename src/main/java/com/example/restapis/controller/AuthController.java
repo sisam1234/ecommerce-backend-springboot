@@ -44,9 +44,7 @@ public class AuthController {
                     .collect(Collectors.toList());
             return ResponseEntity.badRequest().body(error);
         }
-        if (userRepo.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body("email is already registered");
-        }
+       
 
         userService.register(request);
         return ResponseEntity.ok("User registered successfully");
@@ -57,7 +55,7 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginUserDTO req) {
         User user = userService.login(req);
         String token = jwtService.generateToken(new UserDetailsImpl(user));
-        long expiresIn = jwtService.getExpirationTime(); // your JwtService should expose this
+        long expiresIn = jwtService.getExpirationTime(); 
 
         LoginResponse response = new LoginResponse();
         response.setToken(token);
