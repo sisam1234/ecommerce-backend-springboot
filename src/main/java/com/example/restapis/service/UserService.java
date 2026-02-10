@@ -60,7 +60,7 @@ public class UserService {
 							request.getEmail(),
 							request.getPassword()));
 		} catch (BadCredentialsException ex) {
-			throw new InvalidCredentialsException("Invalid email or password");
+			throw new InvalidCredentialsException(ex.getMessage());
 		}
 		return user;
 

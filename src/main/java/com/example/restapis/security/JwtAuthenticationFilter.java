@@ -15,7 +15,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+
+
+import io.jsonwebtoken.ExpiredJwtException;
+
 import java.io.IOException;
+import java.nio.charset.MalformedInputException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -44,13 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        try{
 
         final String jwt = authHeader.substring(7);
         final String userEmail = jwtService.extractUsername(jwt);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication()==null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-            System.out.println("Token valid? " + jwtService.isTokenValid(jwt, userDetails));
+            
             if(jwtService.isTokenValid(jwt, userDetails)){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                     null,
@@ -59,8 +65,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+            
         }
            filterChain.doFilter(request, response);
-
+    }catch(Exception e){
+        handlerExceptionResolver.resolveException(request, response, null, e);
     }
+   
+}
 }

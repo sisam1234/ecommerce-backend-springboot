@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -28,6 +31,20 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<Map<String,String>> handleInvalid(InvalidCredentialsException ex){
+         Map<String,String> response = new HashMap<>();
+        response.put("status",String.valueOf(HttpStatus.CONFLICT.value()));
+        response.put("message",ex.getMessage());
+        return new  ResponseEntity<>(response,HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<Map<String,String>> handleTokenExpired(MalformedJwtException ex){
+         Map<String,String> response = new HashMap<>();
+        response.put("status",String.valueOf(HttpStatus.CONFLICT.value()));
+        response.put("message",ex.getMessage());
+        return new  ResponseEntity<>(response,HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Map<String,String>> handleExpiredToken(ExpiredJwtException ex){
          Map<String,String> response = new HashMap<>();
         response.put("status",String.valueOf(HttpStatus.CONFLICT.value()));
         response.put("message",ex.getMessage());
