@@ -17,6 +17,7 @@ import com.example.restapis.entity.Cart;
 import com.example.restapis.entity.CartItem;
 import com.example.restapis.entity.Product;
 import com.example.restapis.entity.User;
+import com.example.restapis.exception.ResourceNotFoundException;
 import com.example.restapis.repository.CartItemRepository;
 import com.example.restapis.repository.CartRepository;
 import com.example.restapis.repository.ProductRepository;
@@ -94,7 +95,7 @@ public class CartService {
 		Cart cart= cartRepository.findByUserId(userId);
 	
 		if(cart ==  null) {
-			throw new RuntimeException("nothing in cart");
+			throw new ResourceNotFoundException("Cart is Empty");
 	
 		}
 		CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);

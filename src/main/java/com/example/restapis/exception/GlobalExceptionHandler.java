@@ -50,4 +50,11 @@ public class GlobalExceptionHandler {
         response.put("message",ex.getMessage());
         return new  ResponseEntity<>(response,HttpStatus.CONFLICT);
     }
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String,String>>handleResource(ResourceNotFoundException ex){
+        Map<String,String> response = new HashMap<>();
+        response.put("status",String.valueOf(HttpStatus.CONFLICT.value()));
+        response.put("message",ex.getMessage());
+        return new  ResponseEntity<>(response,HttpStatus.CONFLICT);
+    }
 }

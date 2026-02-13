@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.example.restapis.dto.ProductDTO;
 import com.example.restapis.entity.Category;
 import com.example.restapis.entity.Product;
+import com.example.restapis.exception.ResourceNotFoundException;
 import com.example.restapis.repository.CategoryRepository;
 import com.example.restapis.repository.ProductRepository;
 import com.example.restapis.response.ProductResponse;
@@ -64,9 +65,13 @@ public class ProductService {
 		 return productResponse;
 	}
 	public ProductResponse searchByCategory(Long categoryId, int number, int size){
+		
 		Pageable pageDetails =PageRequest.of(number, size);
 		Page<Product> productpage = productRepo.findByCategoryId(categoryId,pageDetails);
 		List<Product> products = productpage.getContent();
+		if(products.isEmpty()){
+			throw new ResourceNotFoundException("No Product Found");
+		}
 		List<ProductDTO> productDTO = products.stream().map(p->modelMapper.map(p, ProductDTO.class)).collect(Collectors.toList());
 		ProductResponse productResponse = new ProductResponse();
 		productResponse.setContent(productDTO);
@@ -77,6 +82,7 @@ public class ProductService {
 		 productResponse.setFirst(productpage.isFirst());
 		 productResponse.setLast(productpage.isLast());
 		 return productResponse;
+		
 	}
 	
 	public ProductDTO updateProduct(ProductDTO request, Long id) {
