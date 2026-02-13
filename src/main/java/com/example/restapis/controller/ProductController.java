@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.restapis.dto.ProductDTO;
-import com.example.restapis.dto.ProductResponse;
+import com.example.restapis.response.ProductResponse;
 import com.example.restapis.service.FileService;
 import com.example.restapis.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,16 +51,16 @@ public class ProductController {
 		
 		
 	}
-	@GetMapping("/products")
-	public ResponseEntity<ProductResponse> getAllProduct(){
-		 ProductResponse res = productSrevice.getProduct();
+	@GetMapping("/admin/products")
+	public ResponseEntity<ProductResponse> getAllProduct(@RequestParam int number, @RequestParam int size){
+		 ProductResponse res = productSrevice.getAllProduct(number,size);
 		 return new ResponseEntity<>(res, HttpStatus.OK);
 		
 	}
 	
-	@GetMapping("/category/{categoryId}/product")
-	public ResponseEntity<ProductResponse> getProductByCategory(@PathVariable Long categoryId){
-	ProductResponse product = productSrevice.searchByCategory(categoryId);
+	@GetMapping("/admin/category/{categoryId}/product")
+	public ResponseEntity<ProductResponse> getProductByCategory(@PathVariable Long categoryId, @RequestParam int  number,@RequestParam int size){
+	ProductResponse product = productSrevice.searchByCategory(categoryId, number,size);
 	 return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 	

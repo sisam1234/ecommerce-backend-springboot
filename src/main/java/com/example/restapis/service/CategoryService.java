@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.restapis.dto.CategoryDTO;
-import com.example.restapis.dto.CategoryResponse;
 import com.example.restapis.entity.Category;
 import com.example.restapis.repository.CategoryRepository;
+import com.example.restapis.response.CategoryResponse;
 
 @Service
 public class CategoryService {

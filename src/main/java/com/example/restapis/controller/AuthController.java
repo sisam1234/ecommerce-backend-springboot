@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.restapis.dto.LoginResponse;
 import com.example.restapis.dto.LoginUserDTO;
 import com.example.restapis.dto.RegisterUserDTO;
 import com.example.restapis.entity.User;
 import com.example.restapis.repository.UserRepository;
+import com.example.restapis.response.LoginResponse;
 import com.example.restapis.security.JwtService;
 import com.example.restapis.service.UserDetailsImpl;
 import com.example.restapis.service.UserService;

@@ -1,6 +1,8 @@
-package com.example.restapis.dto;
+package com.example.restapis.response;
 
 import java.util.List;
+
+import com.example.restapis.dto.CategoryDTO;
 
 
 public class CategoryResponse {

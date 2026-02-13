@@ -5,14 +5,17 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.restapis.dto.ProductDTO;
-import com.example.restapis.dto.ProductResponse;
 import com.example.restapis.entity.Category;
 import com.example.restapis.entity.Product;
 import com.example.restapis.repository.CategoryRepository;
 import com.example.restapis.repository.ProductRepository;
+import com.example.restapis.response.ProductResponse;
 
 @Service
 public class ProductService {
@@ -45,21 +48,37 @@ public class ProductService {
 		
 		
 	}
-	public ProductResponse getProduct(){
-		List<Product> products = productRepo.findAll();
+	public ProductResponse getAllProduct(int number, int size){
+		Pageable pageDetails = PageRequest.of(number, size);
+		Page<Product> productpage = productRepo.findAll(pageDetails);
+		List<Product> products = productpage.getContent();
 		List<ProductDTO> productDTO = products.stream().map(p->modelMapper.map(p, ProductDTO.class)).collect(Collectors.toList());
 		ProductResponse productResponse = new ProductResponse();
 		 productResponse.setContent(productDTO);
+		 productResponse.setNumber(number);
+		 productResponse.setSize(size);
+		 productResponse.setTotalPages(productpage.getTotalPages());
+		 productResponse.setTotalElements(productpage.getNumberOfElements());
+		 productResponse.setFirst(productpage.isFirst());
+		 productResponse.setLast(productpage.isLast());
 		 return productResponse;
 	}
-	public ProductResponse searchByCategory(Long categoryId){
-		Category cat = categoryRepo.findById(categoryId).orElseThrow();
-		List<Product> products = cat.getProducts();
-		List<ProductDTO> savedproducts = products.stream().map(p->modelMapper.map(p, ProductDTO.class)).collect(Collectors.toList());
-		ProductResponse res = new ProductResponse();
-		res.setContent(savedproducts);
-		return res;
+	public ProductResponse searchByCategory(Long categoryId, int number, int size){
+		Pageable pageDetails =PageRequest.of(number, size);
+		Page<Product> productpage = productRepo.findByCategoryId(categoryId,pageDetails);
+		List<Product> products = productpage.getContent();
+		List<ProductDTO> productDTO = products.stream().map(p->modelMapper.map(p, ProductDTO.class)).collect(Collectors.toList());
+		ProductResponse productResponse = new ProductResponse();
+		productResponse.setContent(productDTO);
+		 productResponse.setNumber(number);
+		 productResponse.setSize(size);
+		 productResponse.setTotalPages(productpage.getTotalPages());
+		 productResponse.setTotalElements(productpage.getNumberOfElements());
+		 productResponse.setFirst(productpage.isFirst());
+		 productResponse.setLast(productpage.isLast());
+		 return productResponse;
 	}
+	
 	public ProductDTO updateProduct(ProductDTO request, Long id) {
 		Product productFromDB = productRepo.findById(id).orElseThrow();
 		Product product = modelMapper.map(request, Product.class);

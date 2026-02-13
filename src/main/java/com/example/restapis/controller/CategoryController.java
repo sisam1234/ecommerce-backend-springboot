@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restapis.dto.CategoryDTO;
-import com.example.restapis.dto.CategoryResponse;
-
+import com.example.restapis.response.CategoryResponse;
 import com.example.restapis.service.CategoryService;
 
 @RestController

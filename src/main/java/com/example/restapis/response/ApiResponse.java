@@ -1,4 +1,4 @@
-package com.example.restapis.dto;
+package com.example.restapis.response;
 
 public class ApiResponse<T> {
 
