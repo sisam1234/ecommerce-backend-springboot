@@ -18,4 +18,9 @@ public class AuthUtil {
        UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
        return user.getId();
     }
+    public String loggedInUserEmail(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
+       return user.getUsername();
+    }
 }

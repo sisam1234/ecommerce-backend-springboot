@@ -51,27 +51,27 @@ public class ProductController {
 		
 		
 	}
-	@GetMapping("/admin/products")
+	@GetMapping("/products")
 	public ResponseEntity<ProductResponse> getAllProduct(@RequestParam int number, @RequestParam int size){
 		 ProductResponse res = productSrevice.getAllProduct(number,size);
 		 return new ResponseEntity<>(res, HttpStatus.OK);
 		
 	}
 	
-	@GetMapping("/admin/category/{categoryId}/product")
+	@GetMapping("/category/{categoryId}/product")
 	public ResponseEntity<ProductResponse> getProductByCategory(@PathVariable Long categoryId, @RequestParam int  number,@RequestParam int size){
 	ProductResponse product = productSrevice.searchByCategory(categoryId, number,size);
 	 return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 	
-	@PutMapping("/product/{id}")
+	@PutMapping("/admin/product/{id}")
 	public ResponseEntity<ProductDTO> update(@RequestBody ProductDTO request,@PathVariable Long id){
 		ProductDTO product  = productSrevice.updateProduct(request, id);
 		 return new ResponseEntity<>(product, HttpStatus.OK);
 		
 	}
 	
-	@DeleteMapping("/product/{id}")
+	@DeleteMapping("/admin/product/{id}")
 	public ResponseEntity<?> delete(@PathVariable Long id){
 		productSrevice.deleteProduct(id);
 		return ResponseEntity.ok("deleted");

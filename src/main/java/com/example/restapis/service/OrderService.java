@@ -18,11 +18,15 @@ import com.example.restapis.entity.CartItem;
 import com.example.restapis.entity.Order;
 import com.example.restapis.entity.OrderItem;
 import com.example.restapis.entity.Payment;
+import com.example.restapis.entity.User;
+import com.example.restapis.exception.ResourceNotFoundException;
 import com.example.restapis.repository.AddressRepository;
 import com.example.restapis.repository.CartRepository;
 import com.example.restapis.repository.OrderItemRepositotry;
 import com.example.restapis.repository.OrderRepository;
 import com.example.restapis.repository.PaymentRepository;
+import com.example.restapis.repository.UserRepository;
+import com.example.restapis.utils.AuthUtil;
 
 @Service
 public class OrderService {
@@ -43,9 +47,22 @@ public class OrderService {
 	
 	@Autowired
 	PaymentRepository paymentRepository;
+
+	@Autowired
+	AuthUtil authUtil;
 	
-	public OrderDTO placeOrder(String email, Long addressId,String paymentMethod, String pgName, String pgPaymentId, String pgStatus, String pgResponseMessage) {
+	@Autowired
+	UserRepository userRepository;
+	public OrderDTO placeOrder(Long addressId,String paymentMethod, String pgName, String pgPaymentId, String pgStatus, String pgResponseMessage) {
+
+		Long userId = authUtil.loggedInUserId();
+		User user = userRepository.findById(userId).orElseThrow();
+		String email = user.getEmail();
+		System.out.println(email);
 		Cart cart = cartRepository.findByEmail(email);
+		if (cart == null || cart.getCartItems().isEmpty()) {
+    throw new ResourceNotFoundException("Cannot place order: Cart is empty");
+}
 		Address address = addressRepository.findById(addressId).orElseThrow();
 
 		Order order = new Order();
@@ -53,7 +70,7 @@ public class OrderService {
 		order.setCreatedAt(LocalDate.now());
 		order.setAddress(address);
 		order.setTotalAmount(cart.getTotalPrice());
-		order.setOrderStatus("order accepted");
+		order.setOrderStatus("order placed");
 		Order saved = orderRepository.save(order);
 		
 		Payment payment = new Payment(paymentMethod, pgPaymentId, pgStatus, pgResponseMessage, pgName);
@@ -74,6 +91,11 @@ public class OrderService {
 		order.setOrderItems(orderItems);
 		orderItems = orderItemRepository.saveAll(orderItems);
 		Order savedorder = orderRepository.save(order);
+
+		cart.getCartItems().clear();
+		cart.setTotalPrice(0.0);
+		cartRepository.save(cart);
+
 		OrderDTO orderdto = modelMapper.map(savedorder, OrderDTO.class);
 		orderdto.setTotalPrice(order.getTotalAmount());
 		List<OrderItemDTO> oderitemdto = order.getOrderItems().stream().map(item->{

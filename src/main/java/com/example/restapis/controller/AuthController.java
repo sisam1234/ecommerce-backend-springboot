@@ -24,7 +24,7 @@ import com.example.restapis.service.UserService;
 
 import jakarta.validation.Valid;
 
-@RequestMapping("/auth")
+@RequestMapping("/public/auth")
 @RestController
 public class AuthController {
     @Autowired

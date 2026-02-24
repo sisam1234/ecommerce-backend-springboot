@@ -29,6 +29,15 @@ public class Cart {
 	
 	@OneToMany(mappedBy = "cart",cascade = {CascadeType.PERSIST,CascadeType.REMOVE},orphanRemoval = true)
 	private List<CartItem> cartItems= new ArrayList<CartItem>();
+
+	public void addItem(CartItem item){
+		cartItems.add(item);
+		item.setCart(this);
+	}
+	public void removeItem(CartItem item){
+		cartItems.remove(item);
+		item.setCart(null);
+	}
 	public double getTotalPrice() {
 		return totalPrice;
 	}

@@ -94,7 +94,7 @@ public class CartService {
 		Long userId = authUtil.loggedInUserId();
 		Cart cart= cartRepository.findByUserId(userId);
 	
-		if(cart ==  null) {
+		if(cart ==  null||cart.getCartItems().isEmpty()) {
 			throw new ResourceNotFoundException("Cart is Empty");
 	
 		}

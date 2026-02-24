@@ -26,11 +26,10 @@ public class AddressController {
 	UserRepository userRepository;
 
 	@PostMapping("address")
-	public ResponseEntity<AddressDTO> create(@RequestBody AddressDTO address, Authentication authentication){
-		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-			Long userId = userDetails.getId();
-		User user = userRepository.findById(userId).orElseThrow();
-		AddressDTO saved = addressService.create(address, user);
+	public ResponseEntity<AddressDTO> create(@RequestBody AddressDTO address){
+		
+		
+		AddressDTO saved = addressService.create(address);
 		return new ResponseEntity<>(saved, HttpStatus.OK);
 	}
 }

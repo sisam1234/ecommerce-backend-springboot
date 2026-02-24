@@ -26,16 +26,9 @@ public class OrderController {
 	 OrderService orderService;
 
 	@PostMapping("/placeorder/{addressId}")
-	public ResponseEntity<OrderDTO> placeorder( @PathVariable Long addressId,@RequestBody OrderRequest request, HttpSession session){
-		Long userId = (Long)  session.getAttribute("userId");
-		if (userId == null) {
-		    throw new RuntimeException("User not logged in or session expired");
-		}
-		
-		User user = userRepo.findById(userId).orElseThrow(()->  new RuntimeException("user not found"));
-		String email = user.getEmail();
+	public ResponseEntity<OrderDTO> placeorder( @PathVariable Long addressId,@RequestBody OrderRequest request){
+	System.out.println("hello");
 		OrderDTO order = orderService.placeOrder(
-				email,
 				addressId,
 				request.getPaymentMethod(),
 				request.getPgName(),
@@ -43,6 +36,7 @@ public class OrderController {
 				request.getPgstatus(),
 				request.getPgResponseMessage()
 				);
+				System.out.println("bye");
 		return new ResponseEntity<OrderDTO>(order, HttpStatus.OK);
 	}
 }
