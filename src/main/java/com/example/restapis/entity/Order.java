@@ -42,6 +42,14 @@ public class Order {
 		return id;
 	}
 
+	public Payment getPayment() {
+		return payment;
+	}
+
+	public void setPayment(Payment payment) {
+		this.payment = payment;
+	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}

@@ -6,4 +6,5 @@ import com.example.restapis.entity.Payment;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long>{
 
+    <Optional>Payment  findByPaymentId(String PaymentId);
 }

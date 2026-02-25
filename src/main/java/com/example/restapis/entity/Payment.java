@@ -15,10 +15,14 @@ public class Payment {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String paymentMethod;
-	private String pgstatus;
-	private String pgResponseMessage;
-	private String pgName;
-	private String pgPaymentId;
+	private String paymentStatus;
+	private String paymentId;
+	public String getPaymentId() {
+		return paymentId;
+	}
+	public void setPaymentId(String paymentId) {
+		this.paymentId = paymentId;
+	}
 	@OneToOne(mappedBy = "payment")
 	private Order order;
 	public Long getId() {
@@ -33,46 +37,21 @@ public class Payment {
 	public void setPaymentMethod(String paymentMethod) {
 		this.paymentMethod = paymentMethod;
 	}
-	public String getPgstatus() {
-		return pgstatus;
+	
+	public String getPaymentStatus() {
+		return paymentStatus;
 	}
-	public void setPgstatus(String pgstatus) {
-		this.pgstatus = pgstatus;
+	public void setPaymentStatus(String paymentStatus) {
+		this.paymentStatus = paymentStatus;
 	}
-	public String getPgResponseMessage() {
-		return pgResponseMessage;
-	}
-	public void setPgResponseMessage(String pgResponseMessage) {
-		this.pgResponseMessage = pgResponseMessage;
-	}
-	public String getPgName() {
-		return pgName;
-	}
-	public void setPgName(String pgName) {
-		this.pgName = pgName;
-	}
-	public String getPgPaymentId() {
-		return pgPaymentId;
-	}
-	public void setPgPaymentId(String pgPaymentId) {
-		this.pgPaymentId = pgPaymentId;
-	}
+	
 	public Order getOrder() {
 		return order;
 	}
 	public void setOrder(Order order) {
 		this.order = order;
 	}
-	public Payment( String paymentMethod, String pgstatus, String pgResponseMessage, String pgName,
-			String pgPaymentId) {
-		super();
-		
-		this.paymentMethod = paymentMethod;
-		this.pgstatus = pgstatus;
-		this.pgResponseMessage = pgResponseMessage;
-		this.pgName = pgName;
-		this.pgPaymentId = pgPaymentId;
-		
-	}
+	
+	
 
 }
