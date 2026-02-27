@@ -3,6 +3,7 @@ package com.example.restapis.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -32,28 +33,32 @@ import com.example.restapis.utils.AuthUtil;
 public class OrderService {
 	@Autowired
 	CartRepository cartRepository;
-	
+
 	@Autowired
 	OrderRepository orderRepository;
-	
+
 	@Autowired
 	OrderItemRepositotry orderItemRepository;
-	
+
 	@Autowired
 	AddressRepository addressRepository;
-	
+
 	@Autowired
 	ModelMapper modelMapper;
-	
+
 	@Autowired
 	PaymentRepository paymentRepository;
 
 	@Autowired
 	AuthUtil authUtil;
-	
+
+	@Autowired
+	KhaltiService khaltiService;
+
 	@Autowired
 	UserRepository userRepository;
-	public OrderDTO placeOrder(Long addressId,String paymentMethod, String pgName, String pgPaymentId, String pgStatus, String pgResponseMessage) {
+
+	public Map<String, Object> placeOrder(Long addressId, String paymentMethod) {
 
 		Long userId = authUtil.loggedInUserId();
 		User user = userRepository.findById(userId).orElseThrow();
@@ -61,8 +66,8 @@ public class OrderService {
 		System.out.println(email);
 		Cart cart = cartRepository.findByEmail(email);
 		if (cart == null || cart.getCartItems().isEmpty()) {
-    throw new ResourceNotFoundException("Cannot place order: Cart is empty");
-}
+			throw new ResourceNotFoundException("Cannot place order: Cart is empty");
+		}
 		Address address = addressRepository.findById(addressId).orElseThrow();
 
 		Order order = new Order();
@@ -70,44 +75,55 @@ public class OrderService {
 		order.setCreatedAt(LocalDate.now());
 		order.setAddress(address);
 		order.setTotalAmount(cart.getTotalPrice());
-		order.setOrderStatus("order placed");
+		order.setOrderStatus("ORDER_PLACED");
 		Order saved = orderRepository.save(order);
-		
-		Payment payment = new Payment(paymentMethod, pgPaymentId, pgStatus, pgResponseMessage, pgName);
-		payment.setOrder(order);
-		paymentRepository.save(payment);
-		
-		
+
 		List<OrderItem> orderItems = new ArrayList<>();
 		List<CartItem> cartItems = cart.getCartItems();
-		for(CartItem item:cartItems) {
+		for (CartItem item : cartItems) {
 			OrderItem orderItem = new OrderItem();
 			orderItem.setOrder(saved);
 			orderItem.setProducts(item.getProduct());
 			orderItem.setQuantity(item.getQuantity());
 			orderItem.setUnitPrice(item.getProduct().getPrice());
 			orderItems.add(orderItem);
+		
 		}
 		order.setOrderItems(orderItems);
 		orderItems = orderItemRepository.saveAll(orderItems);
 		Order savedorder = orderRepository.save(order);
+		Payment payment = new Payment();
+
+		if("COD".equals(paymentMethod)){
+			payment.setPaymentMethod(paymentMethod);
+			payment.setPaymentStatus("PENDING");
+			payment.setOrder(savedorder);
+			paymentRepository.save(payment);
+			
+		}
+		
+		else if("KHALTI".equals(paymentMethod)){
+		Map<String, Object> response = khaltiService.initiatePayment(savedorder.getId(), email,
+				savedorder.getTotalAmount());
+		String pidx = (String) response.get("pidx");
+				payment.setPaymentMethod(paymentMethod);
+				payment.setPaymentStatus("INITIATED");
+				payment.setPaymentId(pidx);
+				paymentRepository.save(payment);
+
+				cart.getCartItems().clear();
+		cart.setTotalPrice(0.0);
+		cartRepository.save(cart);
+				return response;
+		}
+
 
 		cart.getCartItems().clear();
 		cart.setTotalPrice(0.0);
 		cartRepository.save(cart);
 
-		OrderDTO orderdto = modelMapper.map(savedorder, OrderDTO.class);
-		orderdto.setTotalPrice(order.getTotalAmount());
-		List<OrderItemDTO> oderitemdto = order.getOrderItems().stream().map(item->{
-			
-			OrderItemDTO orderitemdto = modelMapper.map(item,OrderItemDTO.class);
-			ProductDTO product = modelMapper.map(item.getProducts(),ProductDTO.class);
-			orderitemdto.setProduct(product);
-			return orderitemdto;
-		}).collect(Collectors.toList());
-		orderdto.setOrderItems(oderitemdto);
-		return orderdto;
-		
+		return Map.of("message", "Order placed successfully with Cash on Delivery");
+
 	}
 
 }

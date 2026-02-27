@@ -1,5 +1,7 @@
 package com.example.restapis.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -7,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restapis.dto.OrderDTO;
@@ -25,18 +28,9 @@ public class OrderController {
 	 @Autowired
 	 OrderService orderService;
 
-	@PostMapping("/placeorder/{addressId}")
-	public ResponseEntity<OrderDTO> placeorder( @PathVariable Long addressId,@RequestBody OrderRequest request){
-	System.out.println("hello");
-		OrderDTO order = orderService.placeOrder(
-				addressId,
-				request.getPaymentMethod(),
-				request.getPgName(),
-				request.getPgPaymentId(),
-				request.getPgstatus(),
-				request.getPgResponseMessage()
-				);
-				System.out.println("bye");
-		return new ResponseEntity<OrderDTO>(order, HttpStatus.OK);
-	}
+	 @PostMapping("/placeorder/{addressId}")
+    public ResponseEntity<Map<String,Object>> placeOrder(@PathVariable Long addressId,@RequestParam String paymentMethod) {
+        Map<String,Object> response = orderService.placeOrder(addressId,paymentMethod);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
