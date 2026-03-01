@@ -37,8 +37,7 @@ public class GoogleLoginService {
     private String client_id;
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String return_url;
-    @Value("${spring.security.oauth2.client.registration.google.scope}")
-    private String scope;
+  
 
     public String loginWithGoogle() {
         String scopes = "openid profile email";
@@ -52,6 +51,7 @@ public class GoogleLoginService {
     }
 
     public Map<String, Object> handleGoogleCallback(String code) {
+        System.out.println("hanclecll");
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("code", code);
         formData.add("client_id", client_id);
