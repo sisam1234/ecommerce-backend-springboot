@@ -26,9 +26,11 @@ import com.example.restapis.service.FileService;
 import com.example.restapis.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 
 
+@SecurityRequirement(name = "token")
 @RestController
 public class ProductController {
 	

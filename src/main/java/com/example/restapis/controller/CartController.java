@@ -24,8 +24,10 @@ import com.example.restapis.response.ApiResponse;
 import com.example.restapis.service.CartService;
 import com.example.restapis.service.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 
+@SecurityRequirement(name = "token")
 @RestController
 public class CartController {
 	

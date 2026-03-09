@@ -18,8 +18,9 @@ import com.example.restapis.entity.User;
 import com.example.restapis.repository.UserRepository;
 import com.example.restapis.service.OrderService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpSession;
-
+@SecurityRequirement(name = "token")
 @RestController
 public class OrderController {
 	 @Autowired

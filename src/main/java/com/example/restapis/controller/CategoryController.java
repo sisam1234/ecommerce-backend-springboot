@@ -17,6 +17,8 @@ import com.example.restapis.dto.CategoryDTO;
 import com.example.restapis.response.CategoryResponse;
 import com.example.restapis.service.CategoryService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+@SecurityRequirement(name = "token")
 @RestController
 public class CategoryController {
 

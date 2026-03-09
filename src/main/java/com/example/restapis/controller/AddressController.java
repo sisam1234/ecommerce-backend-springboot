@@ -15,9 +15,11 @@ import com.example.restapis.repository.UserRepository;
 import com.example.restapis.service.AddressService;
 import com.example.restapis.service.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
+@SecurityRequirement(name = "token")
 public class AddressController {
 	@Autowired
 	AddressService addressService;
