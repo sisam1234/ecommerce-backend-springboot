@@ -13,7 +13,7 @@ public class OrderDTO {
 	private LocalDate createdAt;
 	private String orderStatus;
 	private Long addressId;
-	private double totalPrice;
+	private double totalAmount;
 	public Long getId() {
 		return id;
 	}
@@ -51,11 +51,12 @@ public class OrderDTO {
 	public void setAddressId(Long addressId) {
 		this.addressId = addressId;
 	}
-	public double getTotalPrice() {
-		return totalPrice;
+	public double getTotalAmount() {
+		return totalAmount;
 	}
-	public void setTotalPrice(double totalPrice) {
-		this.totalPrice = totalPrice;
+	public void setTotalAmount(double totalAmount) {
+		this.totalAmount = totalAmount;
 	}
+	
 	
 }

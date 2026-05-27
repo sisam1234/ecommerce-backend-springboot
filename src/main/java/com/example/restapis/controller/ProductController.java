@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.restapis.dto.ProductDTO;
+import com.example.restapis.entity.Product;
 import com.example.restapis.response.ProductResponse;
 import com.example.restapis.service.FileService;
+import com.example.restapis.service.InventoryService;
 import com.example.restapis.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -39,6 +41,8 @@ public class ProductController {
 	@Autowired
 	FileService fileService;
 
+	@Autowired
+	InventoryService inventoryService;
 
 	
 
@@ -72,6 +76,14 @@ public class ProductController {
 		 return new ResponseEntity<>(product, HttpStatus.OK);
 		
 	}
+	@PutMapping("/admin/inventory/{id}/addstock")
+	 public ResponseEntity<ProductDTO> addStock(
+            @PathVariable Long id,
+            @RequestParam int quantity) {
+
+				ProductDTO product = inventoryService.addStock(id, quantity);
+        return new ResponseEntity<>(product, HttpStatus.OK);
+    }
 	
 	@DeleteMapping("/admin/product/{id}")
 	public ResponseEntity<?> delete(@PathVariable Long id){

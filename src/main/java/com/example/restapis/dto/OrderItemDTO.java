@@ -2,7 +2,7 @@ package com.example.restapis.dto;
 
 public class OrderItemDTO {
 	private Long id;
-	private ProductDTO product;
+	private ProductDTO products;
 	private int quantity;
 	private double unitPrice;
 	public Long getId() {
@@ -11,11 +11,12 @@ public class OrderItemDTO {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public ProductDTO getProduct() {
-		return product;
+	
+	public ProductDTO getProducts() {
+		return products;
 	}
-	public void setProduct(ProductDTO product) {
-		this.product = product;
+	public void setProducts(ProductDTO products) {
+		this.products = products;
 	}
 	public int getQuantity() {
 		return quantity;

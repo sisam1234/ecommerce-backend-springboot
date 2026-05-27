@@ -6,6 +6,13 @@ public class ProductDTO {
 	private String name;
 	private String description;
 	private float price;
+	private Integer StockQuantity;
+	public Integer getStockQuantity() {
+		return StockQuantity;
+	}
+	public void setStockQuantity(Integer stockQuantity) {
+		StockQuantity = stockQuantity;
+	}
 	public String getImage() {
 		return image;
 	}

@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
 
 import com.example.restapis.dto.OrderDTO;
 import com.example.restapis.dto.OrderItemDTO;
@@ -58,17 +60,24 @@ public class OrderService {
 	@Autowired
 	UserRepository userRepository;
 
+	@Autowired
+	KafkaTemplate  kafkaTemplate;
+
+
 	public Map<String, Object> placeOrder(Long addressId, String paymentMethod) {
+		if(!List.of("COD","KHALTI").contains(paymentMethod)){
+			throw new IllegalArgumentException("Invalid payment method");
+		}
 
 		Long userId = authUtil.loggedInUserId();
-		User user = userRepository.findById(userId).orElseThrow();
+		User user = userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("User not found"));
 		String email = user.getEmail();
 		System.out.println(email);
 		Cart cart = cartRepository.findByEmail(email);
 		if (cart == null || cart.getCartItems().isEmpty()) {
 			throw new ResourceNotFoundException("Cannot place order: Cart is empty");
 		}
-		Address address = addressRepository.findById(addressId).orElseThrow();
+		Address address = addressRepository.findById(addressId).orElseThrow(()->new ResourceNotFoundException("Address not  found"));
 
 		Order order = new Order();
 		order.setEmail(email);
@@ -76,45 +85,66 @@ public class OrderService {
 		order.setAddress(address);
 		order.setTotalAmount(cart.getTotalPrice());
 		order.setOrderStatus("ORDER_PLACED");
-		Order saved = orderRepository.save(order);
+		// Order saved = orderRepository.save(order);
 
-		List<OrderItem> orderItems = new ArrayList<>();
-		List<CartItem> cartItems = cart.getCartItems();
-		for (CartItem item : cartItems) {
-			OrderItem orderItem = new OrderItem();
-			orderItem.setOrder(saved);
-			orderItem.setProducts(item.getProduct());
-			orderItem.setQuantity(item.getQuantity());
-			orderItem.setUnitPrice(item.getProduct().getPrice());
-			orderItems.add(orderItem);
+		// List<OrderItem> orderItems = new ArrayList<>();
+		// List<CartItem> cartItems = cart.getCartItems();
+		// for (CartItem item : cartItems) {
+		// 	OrderItem orderItem = new OrderItem();
+		// 	orderItem.setOrder(saved);
+		// 	orderItem.setProducts(item.getProduct());
+		// 	orderItem.setQuantity(item.getQuantity());
+		// 	orderItem.setUnitPrice(item.getProduct().getPrice());
+		// 	orderItems.add(orderItem);
 		
-		}
-		order.setOrderItems(orderItems);
-		orderItems = orderItemRepository.saveAll(orderItems);
-		Order savedorder = orderRepository.save(order);
+		// }
+		// order.setOrderItems(orderItems);
+		// orderItems = orderItemRepository.saveAll(orderItems);
+		// Order savedorder = orderRepository.save(order);
+
+		 // Build order items
+        List<OrderItem> orderItems = cart.getCartItems().stream().map(item -> {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProducts(item.getProduct());
+            orderItem.setQuantity(item.getQuantity());
+            orderItem.setUnitPrice(item.getProduct().getPrice());
+			
+            return orderItem;
+        }).collect(Collectors.toList());
+		
+
+        order.setOrderItems(orderItems);
+        Order savedOrder = orderRepository.save(order); // single save
+		orderItemRepository.saveAll(orderItems);
+		OrderDTO orderDto = modelMapper.map(savedOrder, OrderDTO.class);
+		
+		kafkaTemplate.send("order-events",orderDto);
+
 		Payment payment = new Payment();
+		payment.setOrder(savedOrder);
+		Map<String, Object> response = null;
 
 		if("COD".equals(paymentMethod)){
-			payment.setPaymentMethod(paymentMethod);
+			payment.setPaymentMethod("COD");
 			payment.setPaymentStatus("PENDING");
-			payment.setOrder(savedorder);
+			
 			paymentRepository.save(payment);
+			 response = Map.of("message", "Order placed successfully with Cash on Delivery");
+
 			
 		}
 		
 		else if("KHALTI".equals(paymentMethod)){
-		Map<String, Object> response = khaltiService.initiatePayment(savedorder.getId(), email,
-				savedorder.getTotalAmount());
-		String pidx = (String) response.get("pidx");
+		Map<String, Object> KhaltiResponse = khaltiService.initiatePayment(savedOrder.getId(), email,
+				savedOrder.getTotalAmount());
+		String pidx = (String) KhaltiResponse.get("pidx");
 				payment.setPaymentMethod(paymentMethod);
 				payment.setPaymentStatus("INITIATED");
 				payment.setPaymentId(pidx);
 				paymentRepository.save(payment);
-
-				cart.getCartItems().clear();
-		cart.setTotalPrice(0.0);
-		cartRepository.save(cart);
-				return response;
+		
+				 response =KhaltiResponse;
 		}
 
 
@@ -122,7 +152,7 @@ public class OrderService {
 		cart.setTotalPrice(0.0);
 		cartRepository.save(cart);
 
-		return Map.of("message", "Order placed successfully with Cash on Delivery");
+		return response;
 
 	}
 
